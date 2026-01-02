@@ -6,3 +6,12 @@ resource "aws_subnet" "private_subnet_1a" {
   }
   vpc_id = var.vpc_id
 }
+
+resource "aws_subnet" "private_subnet_1c" {
+  availability_zone = "ap-northeast-1c"
+  cidr_block        = "10.0.192.0/18"
+  tags = {
+    Name = "private-subnet-1c-${var.env}"
+  }
+  vpc_id = var.vpc_id
+}
