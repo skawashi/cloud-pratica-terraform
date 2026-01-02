@@ -10,6 +10,6 @@ module "subnet" {
 }
 
 import {
-  to = module.subnet.aws_subnet.public_subnet_1a
-  id = "subnet-04d458ba99bdfc014"
+  to = module.subnet.aws_subnet.public_subnet_1c
+  id = "subnet-0bb6c159b9dfee3fa"
 }
