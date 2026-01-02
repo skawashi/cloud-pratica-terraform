@@ -2,7 +2,9 @@ module "vpc" {
   source = "../modules/aws/vpc"
   env    = "stg"
 }
-import {
-  to = aws_subnet.private_subnet_1a
-  id = ""
+
+module "subnet" {
+  source = "../modules/aws/subnet"
+  env    = "stg"
+  vpc_id = module.vpc.id_cloud_pratica
 }
