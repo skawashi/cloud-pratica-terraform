@@ -24,3 +24,9 @@ module "route_table" {
   private_subnet_ids       = local.private_subnet_ids
   nat_network_interface_id = "eni-06dec4a8b0831c38d" # TODO natインスタンスimport時、ハードコーディング修正
 }
+
+module "security_group" {
+  source = "../modules/aws/security_group"
+  env    = local.env
+  vpc_id = module.vpc.id_cloud_pratica
+}
