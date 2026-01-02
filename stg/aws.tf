@@ -30,3 +30,8 @@ module "security_group" {
   env    = local.env
   vpc_id = module.vpc.id_cloud_pratica
 }
+
+module "ecr" {
+  source = "../modules/aws/ecr"
+  env    = local.env
+}
