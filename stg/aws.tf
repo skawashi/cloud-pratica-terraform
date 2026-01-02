@@ -9,7 +9,8 @@ module "subnet" {
   vpc_id = module.vpc.id_cloud_pratica
 }
 
-import {
-  to = module.subnet.aws_subnet.public_subnet_1c
-  id = "subnet-0bb6c159b9dfee3fa"
+module "internet_gateway" {
+  source = "../modules/aws/internet_gateway"
+  env    = "stg"
+  vpc_id = module.vpc.id_cloud_pratica
 }
