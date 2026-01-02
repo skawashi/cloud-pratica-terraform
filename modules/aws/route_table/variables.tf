@@ -13,3 +13,11 @@ variable "internet_gateway_id" {
 variable "public_subnet_ids" {
   type = list(string)
 }
+
+variable "private_subnet_ids" {
+  type = list(string)
+}
+
+variable "nat_network_interface_id" {
+  type = string
+}
