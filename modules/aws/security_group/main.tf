@@ -116,3 +116,25 @@ resource "aws_security_group" "slack_metrics_backend" {
     Name = "cp-slack-metrics-backend-${var.env}"
   }
 }
+
+resource "aws_security_group" "db_migrator" {
+  region      = "ap-northeast-1"
+  vpc_id      = var.vpc_id
+  name        = "cp-db-migrator-${var.env}"
+  description = "Managed by Terraform"
+  egress = [{
+    cidr_blocks      = ["0.0.0.0/0"]
+    description      = ""
+    from_port        = 0
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    protocol         = "-1"
+    security_groups  = []
+    self             = false
+    to_port          = 0
+  }]
+  ingress = []
+  tags = {
+    Name = "cp-db-migrator-${var.env}"
+  }
+}
