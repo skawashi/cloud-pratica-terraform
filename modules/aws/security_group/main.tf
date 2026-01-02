@@ -84,3 +84,35 @@ resource "aws_security_group" "nat" {
     Name = "cp-nat-${var.env}"
   }
 }
+
+resource "aws_security_group" "slack_metrics_backend" {
+  region      = "ap-northeast-1"
+  vpc_id      = var.vpc_id
+  name        = "cp-slack-metrics-backend-${var.env}"
+  description = "Managed by Terraform"
+  egress = [{
+    cidr_blocks      = ["0.0.0.0/0"]
+    description      = ""
+    from_port        = 0
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    protocol         = "-1"
+    security_groups  = []
+    self             = false
+    to_port          = 0
+  }]
+  ingress = [{
+    cidr_blocks      = []
+    description      = ""
+    from_port        = 8080
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    protocol         = "tcp"
+    security_groups  = ["sg-06d9439930788f683"]
+    self             = false
+    to_port          = 8080
+  }]
+  tags = {
+    Name = "cp-slack-metrics-backend-${var.env}"
+  }
+}
