@@ -46,3 +46,9 @@ module "sqs" {
   env        = local.env
   account_id = local.account_id
 }
+
+module "ses" {
+  source = "../modules/aws/ses"
+  env    = local.env
+}
+
