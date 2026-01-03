@@ -35,3 +35,8 @@ module "ecr" {
   source = "../modules/aws/ecr"
   env    = local.env
 }
+
+module "secrets_manager" {
+  source = "../modules/aws/secrets_manager"
+  env    = local.env
+}
