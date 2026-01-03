@@ -42,6 +42,7 @@ module "secrets_manager" {
 }
 
 module "sqs" {
-  source = "../modules/aws/sqs"
-  env    = local.env
+  source     = "../modules/aws/sqs"
+  env        = local.env
+  account_id = local.account_id
 }
