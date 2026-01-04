@@ -62,9 +62,11 @@ module "ec2" {
   env       = local.env
   subnet_id = module.subnet.id_public_subnet_1a
   bastion = {
-    security_group_id = module.security_group.id_bastion
+    iam_instance_profile = "cp-bastion-${local.env}"
+    security_group_id    = module.security_group.id_bastion
   }
   nat_1a = {
-    security_group_id = module.security_group.id_nat
+    iam_instance_profile = "cp-nat-${local.env}"
+    security_group_id    = module.security_group.id_nat
   }
 }
