@@ -87,3 +87,8 @@ module "rds_unit" {
     module.security_group.id_rds,
   ]
 }
+
+module "acm_unit" {
+  source      = "../modules/aws/acm_unit"
+  domain_name = "*.stg.cloud-pratica.kawashima.world"
+}
