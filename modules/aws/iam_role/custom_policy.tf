@@ -120,3 +120,18 @@ resource "aws_iam_policy" "cloud_watch_logs_write" {
     Version = "2012-10-17"
   })
 }
+
+resource "aws_iam_policy" "secrets_manager_read" {
+  name = "secrets-manager-read-${var.env}"
+  policy = jsonencode({
+    Statement = [{
+      Action = [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret",
+      ]
+      Effect   = "Allow"
+      Resource = "*"
+    }]
+    Version = "2012-10-17"
+  })
+}

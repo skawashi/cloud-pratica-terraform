@@ -186,3 +186,32 @@ resource "aws_iam_role_policy_attachment" "cp_slack_metrics_client_attachments" 
   policy_arn = each.value
   role       = aws_iam_role.cp_slack_metrics_client.name
 }
+
+#########################################################################
+# ecs-task-execution
+#########################################################################
+resource "aws_iam_role" "ecs_task_execution" {
+  name        = "ecs-task-execution-${var.env}"
+  description = "Allows ECS tasks to call AWS services on your behalf."
+  assume_role_policy = jsonencode({
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ecs-tasks.amazonaws.com"
+      }
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_attachments" {
+  for_each = {
+    ecs_task_execution = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+    s3                 = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+    cloudwatch         = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+    secrets_manager    = aws_iam_policy.secrets_manager_read.arn
+  }
+  policy_arn = each.value
+  role       = aws_iam_role.ecs_task_execution.name
+}
