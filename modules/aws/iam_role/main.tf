@@ -1,3 +1,6 @@
+#########################################################################
+# cp-slack-metrics-backend
+#########################################################################
 resource "aws_iam_role" "cp_slack_metrics_backend" {
   name        = "cp-slack-metrics-backend-${var.env}"
   description = "Allows ECS tasks to call AWS services on your behalf."
@@ -25,6 +28,9 @@ resource "aws_iam_role_policy_attachment" "cp_slack_metrics_backend_attachments"
   role       = aws_iam_role.cp_slack_metrics_backend.name
 }
 
+#########################################################################
+# cp-bastion
+#########################################################################
 resource "aws_iam_role" "cp_bastion" {
   name        = "cp-bastion-${var.env}"
   description = "Allows EC2 instances to call AWS services on your behalf."
@@ -49,6 +55,9 @@ resource "aws_iam_role_policy_attachment" "cp_bastion_attachments" {
   role       = aws_iam_role.cp_bastion.name
 }
 
+#########################################################################
+# db-migrator
+#########################################################################
 resource "aws_iam_role" "cp_db_migrator" {
   name        = "cp-db-migrator-${var.env}"
   description = "Allows ECS tasks to call AWS services on your behalf."
@@ -73,6 +82,9 @@ resource "aws_iam_role_policy_attachment" "cp_db_migrator_attachments" {
   role       = aws_iam_role.cp_db_migrator.name
 }
 
+#########################################################################
+# cp-nat
+#########################################################################
 resource "aws_iam_role" "cp_nat" {
   name        = "cp-nat-${var.env}"
   description = "Allows EC2 instances to call AWS services on your behalf."
@@ -97,6 +109,9 @@ resource "aws_iam_role_policy_attachment" "cp_nat_attachments" {
   role       = aws_iam_role.cp_nat.name
 }
 
+#########################################################################
+# cp-scheduler-cost-cutter
+#########################################################################
 resource "aws_iam_role" "cp_scheduler_cost_cutter" {
   name = "cp-scheduler-cost-cutter-${var.env}"
   assume_role_policy = jsonencode({
@@ -119,4 +134,30 @@ resource "aws_iam_role_policy_attachment" "cp_scheduler_cost_cutter_attachments"
   }
   policy_arn = each.value
   role       = aws_iam_role.cp_scheduler_cost_cutter.name
+}
+
+#########################################################################
+# cp-scheduler-slack-metrics
+#########################################################################
+resource "aws_iam_role" "cp_scheduler_slack_metrics" {
+  name = "cp-scheduler-slack-metrics-stg"
+  assume_role_policy = jsonencode({
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "scheduler.amazonaws.com"
+      }
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "cp_scheduler_slack_metrics_attachments" {
+  for_each = {
+    ecs_run_task = aws_iam_policy.ecs_run_task.arn
+    pass_role    = aws_iam_policy.pass_role_to_ecs_task.arn
+  }
+  policy_arn = each.value
+  role       = aws_iam_role.cp_scheduler_slack_metrics.name
 }
