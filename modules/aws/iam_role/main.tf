@@ -49,3 +49,26 @@ resource "aws_iam_role_policy_attachment" "cp_bastion_attachments" {
   role       = aws_iam_role.cp_bastion.name
 }
 
+resource "aws_iam_role" "cp_db_migrator" {
+  name        = "cp-db-migrator-${var.env}"
+  description = "Allows ECS tasks to call AWS services on your behalf."
+  assume_role_policy = jsonencode({
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ecs-tasks.amazonaws.com"
+      }
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "cp_db_migrator_attachments" {
+  for_each = {
+    ecs_task_execution = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+    cloudwatch         = "arn:aws:iam::aws:policy/CloudWatchFullAccess"
+  }
+  policy_arn = each.value
+  role       = aws_iam_role.cp_db_migrator.name
+}
