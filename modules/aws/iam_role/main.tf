@@ -140,7 +140,7 @@ resource "aws_iam_role_policy_attachment" "cp_scheduler_cost_cutter_attachments"
 # cp-scheduler-slack-metrics
 #########################################################################
 resource "aws_iam_role" "cp_scheduler_slack_metrics" {
-  name = "cp-scheduler-slack-metrics-stg"
+  name = "cp-scheduler-slack-metrics-${var.env}"
   assume_role_policy = jsonencode({
     Statement = [{
       Action = "sts:AssumeRole"
@@ -160,4 +160,29 @@ resource "aws_iam_role_policy_attachment" "cp_scheduler_slack_metrics_attachment
   }
   policy_arn = each.value
   role       = aws_iam_role.cp_scheduler_slack_metrics.name
+}
+
+#########################################################################
+# cp-slack-metrics-client
+#########################################################################
+resource "aws_iam_role" "cp_slack_metrics_client" {
+  name = "cp-slack-metrics-client-${var.env}"
+  assume_role_policy = jsonencode({
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "amplify.amazonaws.com"
+      }
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "cp_slack_metrics_client_attachments" {
+  for_each = {
+    cloudwatch_write = aws_iam_policy.cloud_watch_logs_write.arn
+  }
+  policy_arn = each.value
+  role       = aws_iam_role.cp_slack_metrics_client.name
 }

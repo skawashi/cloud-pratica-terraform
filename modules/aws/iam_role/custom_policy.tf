@@ -1,5 +1,5 @@
 resource "aws_iam_policy" "ses_send_email" {
-  name = "ses-send-email-stg"
+  name = "ses-send-email-${var.env}"
   policy = jsonencode({
     Statement = [{
       Action = [
@@ -15,7 +15,7 @@ resource "aws_iam_policy" "ses_send_email" {
 
 
 resource "aws_iam_policy" "sqs_read_write" {
-  name = "sqs-read-write-stg"
+  name = "sqs-read-write-${var.env}"
   policy = jsonencode({
     Statement = [{
       Action = [
@@ -32,7 +32,7 @@ resource "aws_iam_policy" "sqs_read_write" {
 }
 
 resource "aws_iam_policy" "ec2_start_stop" {
-  name = "ec2-start-stop-stg"
+  name = "ec2-start-stop-${var.env}"
   policy = jsonencode({
     Statement = [{
       Action = [
@@ -47,7 +47,7 @@ resource "aws_iam_policy" "ec2_start_stop" {
 }
 
 resource "aws_iam_policy" "ecs_write" {
-  name = "ecs-write-stg"
+  name = "ecs-write-${var.env}"
   policy = jsonencode({
     Statement = [{
       Action = [
@@ -62,7 +62,7 @@ resource "aws_iam_policy" "ecs_write" {
 }
 
 resource "aws_iam_policy" "rds_start_stop" {
-  name = "rds-start-stop-stg"
+  name = "rds-start-stop-${var.env}"
   policy = jsonencode({
     Statement = [{
       Action = [
@@ -98,6 +98,22 @@ resource "aws_iam_policy" "pass_role_to_ecs_task" {
           "iam:PassedToService" = "ecs-tasks.amazonaws.com"
         }
       }
+      Effect   = "Allow"
+      Resource = "*"
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_policy" "cloud_watch_logs_write" {
+  name = "cloud-watch-logs-write-${var.env}"
+  policy = jsonencode({
+    Statement = [{
+      Action = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+      ]
       Effect   = "Allow"
       Resource = "*"
     }]
