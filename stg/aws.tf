@@ -56,4 +56,3 @@ module "iam_role" {
   source = "../modules/aws/iam_role"
   env    = local.env
 }
-

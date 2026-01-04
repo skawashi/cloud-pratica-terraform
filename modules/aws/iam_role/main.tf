@@ -72,3 +72,27 @@ resource "aws_iam_role_policy_attachment" "cp_db_migrator_attachments" {
   policy_arn = each.value
   role       = aws_iam_role.cp_db_migrator.name
 }
+
+resource "aws_iam_role" "cp_nat" {
+  name        = "cp-nat-${var.env}"
+  description = "Allows EC2 instances to call AWS services on your behalf."
+  assume_role_policy = jsonencode({
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+      Sid = ""
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "cp_nat_attachments" {
+  for_each = {
+    ssm_core = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  }
+  policy_arn = each.value
+  role       = aws_iam_role.cp_nat.name
+}
