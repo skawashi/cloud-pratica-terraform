@@ -56,3 +56,15 @@ module "iam_role" {
   source = "../modules/aws/iam_role"
   env    = local.env
 }
+
+module "ec2" {
+  source    = "../modules/aws/ec2"
+  env       = local.env
+  subnet_id = module.subnet.id_public_subnet_1a
+  bastion = {
+    security_group_id = module.security_group.id_bastion
+  }
+  nat_1a = {
+    security_group_id = module.security_group.id_nat
+  }
+}
