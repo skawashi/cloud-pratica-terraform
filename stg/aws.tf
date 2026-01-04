@@ -88,7 +88,10 @@ module "rds_unit" {
   ]
 }
 
-module "acm_unit" {
+module "acm_cloud_pratica_com_ap_northeast_1" {
   source      = "../modules/aws/acm_unit"
-  domain_name = "*.stg.cloud-pratica.kawashima.world"
+  domain_name = "*.${local.base_host}"
+  providers = {
+    aws = aws
+  }
 }
