@@ -52,7 +52,8 @@ module "ses" {
   env    = local.env
 }
 
-module "ima_role" {
+module "iam_role" {
   source = "../modules/aws/iam_role"
   env    = local.env
 }
+
