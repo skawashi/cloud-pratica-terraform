@@ -4,7 +4,7 @@ resource "aws_iam_policy" "ses_send_email" {
     Statement = [{
       Action = [
         "ses:SendEmail",
-        "ses:SendRawEmail"
+        "ses:SendRawEmail",
       ]
       Effect   = "Allow"
       Resource = "*"
@@ -22,7 +22,7 @@ resource "aws_iam_policy" "sqs_read_write" {
         "sqs:SendMessage",
         "sqs:ReceiveMessage",
         "sqs:DeleteMessage",
-        "sqs:GetQueueAttributes"
+        "sqs:GetQueueAttributes",
       ]
       Effect   = "Allow"
       Resource = "*"
@@ -31,3 +31,47 @@ resource "aws_iam_policy" "sqs_read_write" {
   })
 }
 
+resource "aws_iam_policy" "ec2_start_stop" {
+  name = "ec2-start-stop-stg"
+  policy = jsonencode({
+    Statement = [{
+      Action = [
+        "ec2:StartInstances",
+        "ec2:StopInstances",
+      ]
+      Effect   = "Allow"
+      Resource = "*"
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_policy" "ecs_write" {
+  name = "ecs-write-stg"
+  policy = jsonencode({
+    Statement = [{
+      Action = [
+        "ecs:UpdateService",
+        "ecs:RunTask",
+      ]
+      Effect   = "Allow"
+      Resource = "*"
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_policy" "rds_start_stop" {
+  name = "rds-start-stop-stg"
+  policy = jsonencode({
+    Statement = [{
+      Action = [
+        "rds:StartDBInstance",
+        "rds:StopDBInstance",
+      ]
+      Effect   = "Allow"
+      Resource = "*"
+    }]
+    Version = "2012-10-17"
+  })
+}
