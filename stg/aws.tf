@@ -95,3 +95,11 @@ module "acm_cloud_pratica_com_ap_northeast_1" {
     aws = aws
   }
 }
+
+module "acm_cloud_pratica_com_us_east_1" {
+  source      = "../modules/aws/acm_unit"
+  domain_name = "*.${local.base_host}"
+  providers = {
+    aws = aws.us_east_1
+  }
+}
