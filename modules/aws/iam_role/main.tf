@@ -46,5 +46,6 @@ resource "aws_iam_role_policy_attachment" "cp_bastion_attachments" {
     ssm_core = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
   policy_arn = each.value
-  role       = aws_iam_role.cp_slack_metrics_backend.name
+  role       = aws_iam_role.cp_bastion.name
 }
+
