@@ -9,6 +9,11 @@ resource "aws_instance" "nat_1a" {
   tags = {
     Name = "cp-nat-1a-${var.env}"
   }
+  root_block_device {
+    delete_on_termination = true
+    volume_size           = 8
+    volume_type           = "gp3"
+  }
 }
 
 resource "aws_instance" "bastion" {
@@ -20,5 +25,10 @@ resource "aws_instance" "bastion" {
   vpc_security_group_ids = [var.bastion.security_group_id]
   tags = {
     Name = "cp-bastion-${var.env}"
+  }
+  root_block_device {
+    delete_on_termination = true
+    volume_size           = 8
+    volume_type           = "gp3"
   }
 }
