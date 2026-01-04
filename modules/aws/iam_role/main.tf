@@ -215,3 +215,28 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_attachments" {
   policy_arn = each.value
   role       = aws_iam_role.ecs_task_execution.name
 }
+
+#########################################################################
+# administrator
+#########################################################################
+resource "aws_iam_role" "administrator" {
+  name = "administrator-${var.env}"
+  assume_role_policy = jsonencode({
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        AWS = "arn:aws:iam::043309350350:root" // りょーまさんのアカウントID
+      }
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "administrator_attachments" {
+  for_each = {
+    admin_access = "arn:aws:iam::aws:policy/AdministratorAccess"
+  }
+  policy_arn = each.value
+  role       = aws_iam_role.administrator.name
+}
