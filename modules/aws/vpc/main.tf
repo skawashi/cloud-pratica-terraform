@@ -4,4 +4,3 @@ resource "aws_vpc" "cloud_pratica" {
     Name = "cloud-pratica-${var.env}"
   }
 }
-
