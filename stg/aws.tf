@@ -112,3 +112,8 @@ module "ecs" {
 module "ecs_task_definition" {
   source = "../modules/aws/ecs_task_definition"
 }
+
+# import {
+#   to = aws_ecs_task_definition.slack_metrics_batch
+#   id = "arn:aws:ecs:ap-northeast-1:480957638549:task-definition/slack-metrics-batch-stg:3"
+# }

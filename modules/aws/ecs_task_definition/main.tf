@@ -110,3 +110,64 @@ resource "aws_ecs_task_definition" "slack_metrics_api" {
     ignore_changes = [container_definitions]
   }
 }
+
+resource "aws_ecs_task_definition" "slack_metrics_batch" {
+  family                   = "slack-metrics-batch-stg"
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = "arn:aws:iam::480957638549:role/ecs-task-execution-stg"
+  task_role_arn            = "arn:aws:iam::480957638549:role/cp-slack-metrics-backend-stg"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+
+  container_definitions = jsonencode([{
+    name         = "batch"
+    image        = "480957638549.dkr.ecr.ap-northeast-1.amazonaws.com/slack-metrics-stg:0b717b4"
+    essential    = true
+    portMappings = []
+    secrets = [
+      {
+        name      = "POSTGRES_MAIN_HOST"
+        valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:host::"
+      },
+      {
+        name      = "POSTGRES_MAIN_PASSWORD"
+        valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:slack_metrics_password::"
+      },
+      {
+        name      = "POSTGRES_MAIN_USER"
+        valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:slack_metrics_user::"
+      }
+    ]
+    environment = [
+      {
+        name  = "MODE"
+        value = "batch"
+      }
+    ]
+    environmentFiles = [
+      {
+        type  = "s3"
+        value = "arn:aws:s3:::cp-kawashima-config-stg/slack-metrics-stg.env"
+      }
+    ]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-create-group  = "true"
+        awslogs-group         = "/ecs/slack-metrics-batch-stg"
+        awslogs-region        = "ap-northeast-1"
+        awslogs-stream-prefix = "ecs"
+      }
+      secretOptions = []
+    }
+    readonlyRootFilesystem = true
+  }])
+  runtime_platform {
+    cpu_architecture        = "X86_64"
+    operating_system_family = "LINUX"
+  }
+  lifecycle {
+    ignore_changes = [container_definitions]
+  }
+}
