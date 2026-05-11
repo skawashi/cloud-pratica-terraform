@@ -103,3 +103,8 @@ module "acm_cloud_pratica_com_us_east_1" {
     aws = aws.us_east_1
   }
 }
+
+module "ecs" {
+  source = "../modules/aws/ecs"
+  env    = local.env
+}
