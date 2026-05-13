@@ -110,5 +110,26 @@ module "ecs" {
 }
 
 module "ecs_task_definition" {
-  source = "../modules/aws/ecs_task_definition"
+  source                               = "../modules/aws/ecs_task_definition"
+  env                                  = local.env
+  ecs_task_role_arn                    = module.iam_role.role_arn_cp_slack_metrics_backend
+  ecs_task_execution_role_arn          = module.iam_role.role_arn_ecs_task_execution
+  secrets_manager_arn_db_main_instance = module.secrets_manager.arn_db_main_instance
+  arn_cp_config_bucket                 = "arn:aws:s3:::cp-kawashima-config-stg"
+  ecs_task_specs = {
+    slack_metrics_api = {
+      cpu    = "256"
+      memory = "512"
+    }
+    slack_metrics_batch = {
+      cpu    = "256"
+      memory = "512"
+    }
+    db_migrator = {
+      cpu    = "256"
+      memory = "512"
+    }
+  }
+  ecr_url_slack_metrics = module.ecr.ecr_url_slack_metrics
+  ecr_url_db_migrator   = module.ecr.ecr_url_db_migrator
 }
