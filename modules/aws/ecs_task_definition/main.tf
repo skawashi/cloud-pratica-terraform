@@ -1,3 +1,6 @@
+/******************************************************
+ * slack_metrics_api
+ ******************************************************/
 resource "aws_ecs_task_definition" "slack_metrics_api" {
   family                   = "slack-metrics-api-stg"
   cpu                      = "256"
@@ -111,6 +114,9 @@ resource "aws_ecs_task_definition" "slack_metrics_api" {
   }
 }
 
+/******************************************************
+ * slack_metrics_batch
+ ******************************************************/
 resource "aws_ecs_task_definition" "slack_metrics_batch" {
   family                   = "slack-metrics-batch-stg"
   cpu                      = "256"
@@ -163,6 +169,62 @@ resource "aws_ecs_task_definition" "slack_metrics_batch" {
     }
     readonlyRootFilesystem = true
   }])
+  runtime_platform {
+    cpu_architecture        = "X86_64"
+    operating_system_family = "LINUX"
+  }
+  lifecycle {
+    ignore_changes = [container_definitions]
+  }
+}
+
+/******************************************************
+ * db_migrator
+ ******************************************************/
+resource "aws_ecs_task_definition" "db_migrator" {
+  family                   = "db-migrator-stg"
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = "arn:aws:iam::480957638549:role/ecs-task-execution-stg"
+  task_role_arn            = "arn:aws:iam::480957638549:role/cp-db-migrator-stg"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+
+  container_definitions = jsonencode([
+    {
+      name      = "app"
+      image     = "480957638549.dkr.ecr.ap-northeast-1.amazonaws.com/db-migrator-stg:0b717b4"
+      essential = true
+      secrets = [
+        {
+          name      = "DB_HOST"
+          valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:host::"
+        },
+        {
+          name      = "DB_PASSWORD"
+          valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:operator_password::"
+        },
+        {
+          name      = "DB_USER"
+          valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:operator_user::"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-create-group  = "true"
+          awslogs-group         = "/ecs/db-migrator-stg"
+          awslogs-region        = "ap-northeast-1"
+          awslogs-stream-prefix = "ecs"
+        }
+        secretOptions = []
+      }
+      environmentFiles = [{
+        type  = "s3"
+        value = "arn:aws:s3:::cp-kawashima-config-stg/db-migrator-stg.env"
+      }]
+    }
+  ])
   runtime_platform {
     cpu_architecture        = "X86_64"
     operating_system_family = "LINUX"
