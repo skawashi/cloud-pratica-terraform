@@ -1,8 +1,7 @@
+/******************************************************
+ Common Variables
+ ******************************************************/
 variable "env" {
-  type = string
-}
-
-variable "ecs_task_role_arn" {
   type = string
 }
 
@@ -47,6 +46,17 @@ variable "ecr_url_db_migrator" {
 }
 
 /******************************************************
+ ECS Task Role
+ ******************************************************/
+variable "ecs_task_role_arn_slack_metrics" {
+  type = string
+}
+
+variable "ecs_task_role_arn_db_migrator" {
+  type = string
+}
+
+/******************************************************
  * slack_metrics_api
  ******************************************************/
 resource "aws_ecs_task_definition" "slack_metrics_api" {
@@ -54,7 +64,7 @@ resource "aws_ecs_task_definition" "slack_metrics_api" {
   cpu                      = var.ecs_task_specs.slack_metrics_api.cpu
   memory                   = var.ecs_task_specs.slack_metrics_api.memory
   execution_role_arn       = var.ecs_task_execution_role_arn
-  task_role_arn            = var.ecs_task_role_arn
+  task_role_arn            = var.ecs_task_role_arn_slack_metrics
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
 
@@ -170,7 +180,7 @@ resource "aws_ecs_task_definition" "slack_metrics_batch" {
   cpu                      = var.ecs_task_specs.slack_metrics_batch.cpu
   memory                   = var.ecs_task_specs.slack_metrics_batch.memory
   execution_role_arn       = var.ecs_task_execution_role_arn
-  task_role_arn            = var.ecs_task_role_arn
+  task_role_arn            = var.ecs_task_role_arn_slack_metrics
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
 
@@ -230,38 +240,38 @@ resource "aws_ecs_task_definition" "slack_metrics_batch" {
  * db_migrator
  ******************************************************/
 resource "aws_ecs_task_definition" "db_migrator" {
-  family                   = "db-migrator-stg"
-  cpu                      = "256"
-  memory                   = "512"
-  execution_role_arn       = "arn:aws:iam::480957638549:role/ecs-task-execution-stg"
-  task_role_arn            = "arn:aws:iam::480957638549:role/cp-db-migrator-stg"
+  family                   = "db-migrator-${var.env}"
+  cpu                      = var.ecs_task_specs.db_migrator.cpu
+  memory                   = var.ecs_task_specs.db_migrator.memory
+  execution_role_arn       = var.ecs_task_execution_role_arn
+  task_role_arn            = var.ecs_task_role_arn_db_migrator
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
 
   container_definitions = jsonencode([
     {
       name      = "app"
-      image     = "480957638549.dkr.ecr.ap-northeast-1.amazonaws.com/db-migrator-stg:0b717b4"
+      image     = "${var.ecr_url_db_migrator}:0b717b4"
       essential = true
       secrets = [
         {
           name      = "DB_HOST"
-          valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:host::"
+          valueFrom = "${var.secrets_manager_arn_db_main_instance}:host::"
         },
         {
           name      = "DB_PASSWORD"
-          valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:operator_password::"
+          valueFrom = "${var.secrets_manager_arn_db_main_instance}:operator_password::"
         },
         {
           name      = "DB_USER"
-          valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:operator_user::"
+          valueFrom = "${var.secrets_manager_arn_db_main_instance}:operator_user::"
         }
       ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/db-migrator-stg"
+          awslogs-group         = "/ecs/db-migrator-${var.env}"
           awslogs-region        = "ap-northeast-1"
           awslogs-stream-prefix = "ecs"
         }
@@ -269,7 +279,7 @@ resource "aws_ecs_task_definition" "db_migrator" {
       }
       environmentFiles = [{
         type  = "s3"
-        value = "arn:aws:s3:::cp-kawashima-config-stg/db-migrator-stg.env"
+        value = "${var.arn_cp_config_bucket}/db-migrator-${var.env}.env"
       }]
     }
   ])
