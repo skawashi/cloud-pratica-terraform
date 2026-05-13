@@ -166,31 +166,31 @@ resource "aws_ecs_task_definition" "slack_metrics_api" {
  * slack_metrics_batch
  ******************************************************/
 resource "aws_ecs_task_definition" "slack_metrics_batch" {
-  family                   = "slack-metrics-batch-stg"
-  cpu                      = "256"
-  memory                   = "512"
-  execution_role_arn       = "arn:aws:iam::480957638549:role/ecs-task-execution-stg"
-  task_role_arn            = "arn:aws:iam::480957638549:role/cp-slack-metrics-backend-stg"
+  family                   = "slack-metrics-batch-${var.env}"
+  cpu                      = var.ecs_task_specs.slack_metrics_batch.cpu
+  memory                   = var.ecs_task_specs.slack_metrics_batch.memory
+  execution_role_arn       = var.ecs_task_execution_role_arn
+  task_role_arn            = var.ecs_task_role_arn
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
 
   container_definitions = jsonencode([{
     name         = "batch"
-    image        = "480957638549.dkr.ecr.ap-northeast-1.amazonaws.com/slack-metrics-stg:0b717b4"
+    image        = "${var.ecr_url_slack_metrics}:0b717b4"
     essential    = true
     portMappings = []
     secrets = [
       {
         name      = "POSTGRES_MAIN_HOST"
-        valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:host::"
+        valueFrom = "${var.secrets_manager_arn_db_main_instance}:host::"
       },
       {
         name      = "POSTGRES_MAIN_PASSWORD"
-        valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:slack_metrics_password::"
+        valueFrom = "${var.secrets_manager_arn_db_main_instance}:slack_metrics_password::"
       },
       {
         name      = "POSTGRES_MAIN_USER"
-        valueFrom = "arn:aws:secretsmanager:ap-northeast-1:480957638549:secret:db-main-instance-stg-SeLIA5:slack_metrics_user::"
+        valueFrom = "${var.secrets_manager_arn_db_main_instance}:slack_metrics_user::"
       }
     ]
     environment = [
@@ -202,14 +202,14 @@ resource "aws_ecs_task_definition" "slack_metrics_batch" {
     environmentFiles = [
       {
         type  = "s3"
-        value = "arn:aws:s3:::cp-kawashima-config-stg/slack-metrics-stg.env"
+        value = "${var.arn_cp_config_bucket}/slack-metrics-${var.env}.env"
       }
     ]
     logConfiguration = {
       logDriver = "awslogs"
       options = {
         awslogs-create-group  = "true"
-        awslogs-group         = "/ecs/slack-metrics-batch-stg"
+        awslogs-group         = "/ecs/slack-metrics-batch-${var.env}"
         awslogs-region        = "ap-northeast-1"
         awslogs-stream-prefix = "ecs"
       }
