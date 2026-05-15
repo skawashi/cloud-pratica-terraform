@@ -5,3 +5,7 @@ data "aws_ecs_task_definition" "latest_slack_metrics_api" {
 data "aws_ecs_task_definition" "latest_slack_metrics_batch" {
   task_definition = "slack-metrics-batch-${var.env}"
 }
+
+output "arn_slack_metrics_api" {
+  value = data.aws_ecs_task_definition.latest_slack_metrics_api.arn
+}
